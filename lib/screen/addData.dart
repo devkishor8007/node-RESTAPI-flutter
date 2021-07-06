@@ -81,13 +81,11 @@ class _AddDataState extends State<AddData> {
                 if (widget.testData == null) {
                   final email = _email.text;
                   final name = _name.text;
-
                   try {
                     ApiService.postTestData(
                       name: name,
                       email: email,
                     );
-
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                       content: Text("Successfully Post"),
                     ));

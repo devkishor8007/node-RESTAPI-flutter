@@ -31,8 +31,10 @@ class _HommyState extends State<Hommy> {
           ),
         ],
       ),
-      body: FutureBuilder(
-        future: ApiService.getTestData(),
+      body: StreamBuilder(
+        stream: Stream.periodic(Duration(seconds: 2)).asyncMap(
+          (i) => ApiService.getTestData(),
+        ),
         builder: (_, snapshot) {
           List<TestData> user = snapshot.data;
           if (!snapshot.hasData) return LinearProgressIndicator();
@@ -48,7 +50,33 @@ class _HommyState extends State<Hommy> {
       itemBuilder: (_, index) {
         var one = user[index].email;
         final show = one.substring(0, 1);
-        return InkWell(
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.indigo,
+            child: Text(
+              show.toUpperCase(),
+              style: textStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          title: Text(user[index].name ?? ""),
+          subtitle: Text(user[index].email ?? ""),
+          trailing: IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: () {
+              try {
+                ApiService.deleteTestData(id: user[index].id);
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("delete"),
+                ));
+              } catch (e) {
+                print("delete error");
+              }
+            },
+          ),
           onLongPress: () {
             Navigator.push(
               context,
@@ -59,34 +87,6 @@ class _HommyState extends State<Hommy> {
               ),
             );
           },
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.indigo,
-              child: Text(
-                show.toUpperCase(),
-                style: textStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            title: Text(user[index].name ?? ""),
-            subtitle: Text(user[index].email ?? ""),
-            trailing: IconButton(
-              icon: Icon(Icons.delete),
-              onPressed: () {
-                try {
-                  ApiService.deleteTestData(id: user[index].id);
-                  setState(() {});
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text("delete"),
-                  ));
-                } catch (e) {
-                  print("delete error");
-                }
-              },
-            ),
-          ),
         );
       },
     );
